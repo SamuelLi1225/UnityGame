@@ -1,0 +1,21 @@
+using UnityEngine;
+
+public class GemCollector : MonoBehaviour
+{
+    public float moveSpeed = 6f;
+    private float screenBoundX;
+
+    void Start()
+    {
+        screenBoundX = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, 0, 0)).x - 0.8f;
+    }
+
+    void Update()
+    {
+        float input = Input.GetAxis("Horizontal");
+        Vector3 pos = transform.position;
+        pos.x += input * moveSpeed * Time.deltaTime;
+        pos.x = Mathf.Clamp(pos.x, -screenBoundX, screenBoundX);
+        transform.position = pos;
+    }
+}
