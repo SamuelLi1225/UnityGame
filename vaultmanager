@@ -1,0 +1,83 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class GemVaultManager : MonoBehaviour
+{
+    public static GemVaultManager Instance;
+
+    public GameObject fallingGemPrefab;
+    public Text scoreText;
+    public Text livesText;
+    public GameObject gameOverPanel;
+
+    private int score = 0;
+    private int lives = 3;
+    private float spawnInterval = 1.2f;
+    private float spawnTimer = 0f;
+    private float spawnRangeX = 4f;
+    private float spawnY = 5.5f;
+    private bool isGameOver = false;
+
+    void Awake()
+    {
+        Instance = this;
+    }
+
+    void Start()
+    {
+        gameOverPanel.SetActive(false);
+        UpdateUI();
+    }
+
+    void Update()
+    {
+        if (isGameOver) return;
+
+        spawnTimer += Time.deltaTime;
+        if (spawnTimer >= spawnInterval)
+        {
+            SpawnGem();
+            spawnTimer = 0f;
+            spawnInterval = Mathf.Max(0.4f, spawnInterval - 0.01f);
+        }
+    }
+
+    void SpawnGem()
+    {
+        float randomX = Random.Range(-spawnRangeX, spawnRangeX);
+        Vector3 spawnPos = new Vector3(randomX, spawnY, 0);
+        GameObject gem = Instantiate(fallingGemPrefab, spawnPos, Quaternion.identity);
+        gem.GetComponent<FallingGem>().fallSpeed = 3f + (score / 50f);
+    }
+
+    public void AddScore(int amount)
+    {
+        score += amount;
+        UpdateUI();
+    }
+
+    public void LoseLife()
+    {
+        lives--;
+        UpdateUI();
+        if (lives <= 0) GameOver();
+    }
+
+    void UpdateUI()
+    {
+        scoreText.text = "Gems: " + score;
+        livesText.text = "Lives: " + lives;
+    }
+
+    void GameOver()
+    {
+        isGameOver = true;
+        gameOverPanel.SetActive(true);
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+}
